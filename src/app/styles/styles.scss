@@ -1,0 +1,60 @@
+@use '../../assets/styles/variables' as v;
+
+.form-group {
+  margin-bottom: 1.5rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    transition: border-color 0.3s ease;
+
+    &:focus {
+      border-color: v.$primary-color;
+      outline: none;
+    }
+  }
+
+  .validation-error {
+    color: v.$error-color;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+}
+
+button {
+  background: v.$primary-color;
+  color: white;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled):hover {
+    opacity: 0.9;
+  }
+}
+
+@media (max-width: v.$breakpoint-mobile) {
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  button {
+    width: 100%;
+    padding: 0.8rem;
+  }
+} 
