@@ -2,6 +2,7 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 declare var google: any;
 
 @Component({
@@ -14,7 +15,7 @@ export class ProfileComponent implements OnInit, AfterViewInit {
   passedLoginAttempts: number = 0;
   failedLoginAttempts: number = 0;
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit() {}
 
@@ -80,5 +81,10 @@ export class ProfileComponent implements OnInit, AfterViewInit {
       document.getElementById('barchart')
     );
     barChart.draw(barData, barOptions);
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/register']);
   }
 }
