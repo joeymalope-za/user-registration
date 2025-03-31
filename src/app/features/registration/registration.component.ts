@@ -45,8 +45,7 @@ export class RegistrationComponent {
     error: '',
   };
 
-  constructor() // private router: Router // private authService: AuthService, // private userService: UserService, // private fb: FormBuilder,
-  {}
+  constructor() {}
 
   private passwordMatchValidator(
     control: AbstractControl
