@@ -2,18 +2,17 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
-import { ChartComponent } from '../../chart/chart.component';
 declare var google: any;
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
-  imports: [CommonModule, ChartComponent],
+  imports: [CommonModule],
 })
 export class ProfileComponent implements OnInit, AfterViewInit {
-  passedLoginAttempts: number = 0;
-  failedLoginAttempts: number = 0;
+  passedLoginAttempts: number = 70;
+  failedLoginAttempts: number = 30;
   activeTab = 0; // Initialize with the first tab active
 
   constructor(private authService: AuthService) {}

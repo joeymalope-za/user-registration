@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { delay } from 'rxjs/operators';
+import { isPlatformBrowser } from '@angular/common';
 
 interface UserRegistration {
   name: string;
@@ -8,20 +9,64 @@ interface UserRegistration {
   password: string;
 }
 
+interface User extends UserRegistration {
+  joined: Date;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
-  // List of emails that are "already taken" for demonstration
-  private takenEmails: string[] = ['test@example.com', 'user@example.com'];
+  private readonly USERS_KEY = 'registered_users';
+  private readonly CURRENT_USER_KEY = 'current_user';
+  private isBrowser: boolean;
 
-  constructor() {}
+  constructor(@Inject(PLATFORM_ID) platformId: Object) {
+    this.isBrowser = isPlatformBrowser(platformId);
+    if (this.isBrowser && !window.sessionStorage.getItem(this.USERS_KEY)) {
+      window.sessionStorage.setItem(
+        this.USERS_KEY,
+        JSON.stringify([
+          {
+            email: 'test@example.com',
+            name: 'Test User',
+            password: 'password123',
+          },
+          {
+            email: 'user@example.com',
+            name: 'Demo User',
+            password: 'password123',
+          },
+        ])
+      );
+    }
+  }
+
+  private getUsers(): User[] {
+    if (!this.isBrowser) return [];
+    const users = window.sessionStorage.getItem(this.USERS_KEY);
+    return users ? JSON.parse(users) : [];
+  }
+
+  private saveUsers(users: User[]): void {
+    if (this.isBrowser) {
+      window.sessionStorage.setItem(this.USERS_KEY, JSON.stringify(users));
+    }
+  }
 
   // Check if email is already registered
   checkEmailAvailability(email: string): Observable<boolean> {
-    // Simulate API call delay
-    const isAvailable = !this.takenEmails.includes(email.toLowerCase());
-    return of(isAvailable).pipe(delay(1000)); // 1 second delay to simulate network request
+    if (!this.isBrowser) return of(true);
+    return new Observable((observer) => {
+      setTimeout(() => {
+        const users = this.getUsers();
+        const isAvailable = !users.some(
+          (user) => user.email.toLowerCase() === email.toLowerCase()
+        );
+        observer.next(isAvailable);
+        observer.complete();
+      }, 1000);
+    });
   }
 
   // email validator check if the email is already token
@@ -29,30 +74,64 @@ export class UserService {
 
   // Register new user
   register(userData: UserRegistration): Observable<any> {
-    // Simulate API call delay
+    if (!this.isBrowser) {
+      return throwError(
+        () => new Error('Registration is only available in browser')
+      );
+    }
     return new Observable((observer) => {
-      // Simulate server processing
       setTimeout(() => {
-        // Check if email is taken
-        if (this.takenEmails.includes(userData.email.toLowerCase())) {
+        const users = this.getUsers();
+        if (
+          users.some(
+            (user) => user.email.toLowerCase() === userData.email.toLowerCase()
+          )
+        ) {
           observer.error({ message: 'Email is already registered' });
-        } else {
-          // Simulate successful registration
-          console.log('User registered:', userData);
-          observer.next({ success: true });
-          observer.complete();
+          return;
         }
-      }, 1500); // 1.5 second delay
+
+        const newUser: User = {
+          ...userData,
+          joined: new Date(),
+        };
+
+        users.push(newUser);
+        this.saveUsers(users);
+        window.sessionStorage.setItem(
+          this.CURRENT_USER_KEY,
+          JSON.stringify(newUser)
+        );
+
+        observer.next({ success: true });
+        observer.complete();
+      }, 1500);
     });
   }
 
   // Get user profile (mock)
-  getUserProfile(): Observable<any> {
-    // In a real app, this would retrieve user data from an API
-    return of({
-      name: 'Test User',
-      email: 'test@example.com',
-      joined: new Date(),
-    }).pipe(delay(800));
+  getUserProfile(): Observable<User | null> {
+    if (!this.isBrowser) return of(null);
+    return new Observable((observer) => {
+      setTimeout(() => {
+        const currentUser = window.sessionStorage.getItem(
+          this.CURRENT_USER_KEY
+        );
+        observer.next(currentUser ? JSON.parse(currentUser) : null);
+        observer.complete();
+      }, 800);
+    });
+  }
+
+  logout(): void {
+    if (this.isBrowser) {
+      window.sessionStorage.removeItem(this.CURRENT_USER_KEY);
+    }
+  }
+
+  getCurrentUser(): User | null {
+    if (!this.isBrowser) return null;
+    const currentUser = window.sessionStorage.getItem(this.CURRENT_USER_KEY);
+    return currentUser ? JSON.parse(currentUser) : null;
   }
 }
