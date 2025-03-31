@@ -1,4 +1,5 @@
-@use '../../assets/styles/variables' as v;
+@use '../../styles/variables' as v;
+@use 'sass:color';
 
 // For debugging purposes only - remove in production
 // * {
@@ -34,7 +35,7 @@ $breakpoint-desktop: 1024px;
     transition: background-color 0.3s;
     
     &:hover {
-      background-color: darken(v.$primary-color, 10%);
+      background-color: color.adjust(v.$primary-color, $lightness: -10%);
     }
   }
 }

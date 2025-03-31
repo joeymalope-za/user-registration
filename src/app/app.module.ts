@@ -7,7 +7,6 @@ import { RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
 import { RegistrationComponent } from './features/registration/registration.component';
 import { ProfileComponent } from './features/profile/profile.component';
-import { DashboardComponent } from './features/profile/profile.component';
 import { UserService } from './core/services/user.service';
 import { AuthService } from './core/services/auth.service';
 import { AuthGuard } from './core/guards/auth.guard';
@@ -18,17 +17,11 @@ import { AuthGuard } from './core/guards/auth.guard';
     ReactiveFormsModule,
     AppComponent,
     RegistrationComponent,
-    DashboardComponent,
     RouterModule.forRoot([
       { path: 'register', component: RegistrationComponent },
       {
         path: 'profile',
         component: ProfileComponent,
-        canActivate: [AuthGuard],
-      },
-      {
-        path: 'dashboard',
-        component: DashboardComponent,
         canActivate: [AuthGuard],
       },
       { path: '', redirectTo: '/register', pathMatch: 'full' },
